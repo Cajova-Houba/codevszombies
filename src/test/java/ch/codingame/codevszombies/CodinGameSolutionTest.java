@@ -137,19 +137,4 @@ class CodinGameSolutionTest {
 
         assertEquals(4320, score);
     }
-
-    private static class StringListSolution implements ISolution {
-
-        private final String[] moves;
-        private int index = 0;
-
-        public StringListSolution(String... moves) {
-            this.moves = moves;
-        }
-
-        @Override
-        public String getNextMove() {
-            return moves[index++];
-        }
-    }
 }

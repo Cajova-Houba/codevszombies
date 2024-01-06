@@ -1,8 +1,5 @@
 package ch.codingame.codevszombies;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GameState {
 
@@ -33,6 +30,23 @@ public class GameState {
         this.ash = ash;
         this.humans = humans;
         this.score = 0;
+    }
+
+    /**
+     * Clones the state as it is.
+     */
+    public GameState clone() {
+        List<Position> newZombies = new ArrayList<>();
+        for (Position zombie : zombies) {
+            newZombies.add(zombie.clone());
+        }
+
+        List<Position> newHumans = new ArrayList<>();
+        for (Position human : humans) {
+            newHumans.add(human.clone());
+        }
+
+        return new GameState(newZombies, ash.clone(), newHumans);
     }
 
     public int getScore() {
@@ -121,6 +135,12 @@ public class GameState {
                 if (zombie.squareDistanceFrom(human) < (zombieRange*zombieRange)) {
                     System.err.println("Human eaten: " + human);
                     humans.remove(i);
+
+                    // check if there's any human left
+                    if (humans.isEmpty()) {
+                        System.err.println("All humans eaten!");
+                        score = 0;
+                    }
 
                     // zombie moves to human's coordinates
                     zombies.set(j, human.clone());

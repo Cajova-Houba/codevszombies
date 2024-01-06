@@ -60,6 +60,7 @@ public class GameEngine {
     public int playGame(GameState initialGameState, ISolution solution) {
         // todo: negative score on error/all humans dead
         int turnCounter = 1;
+        solution.init();
         while (!initialGameState.isGameOver()) {
             System.err.println("Turn " + turnCounter++);
             initialGameState.printState();
@@ -69,12 +70,15 @@ public class GameEngine {
     }
 
     void playTurn(GameState gameState, ISolution solution) {
+        // todo: pass game state to solution, so that it's able to calculate the next move
+        // get player's input
+        Position playersInput = parsePosition(solution.getNextMove());
+
         // move zombies
         gameState.moveZombies(ZOMBIE_RANGE);
 
         // move Ash
-        Position direction = parsePosition(solution.getNextMove());
-        gameState.moveAsh(direction, ASH_SPEED);
+        gameState.moveAsh(playersInput, ASH_SPEED);
 
         // destroy zombies
         gameState.destroyZombies(ASH_RANGE);

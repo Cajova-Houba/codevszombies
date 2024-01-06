@@ -102,6 +102,59 @@ class ContinuousGenericAlgorithmTest {
         }
     }
 
+    @Test
+    void run_comboOpportunity_20gen() {
+        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 40);
+        final GameState game = prepareComboOpportunityGameState();
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(20, 20, 10, 0.5f, 0.2f);
+        final ResultsAggregator aggregator = new ResultsAggregator();
+        final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
+
+        // print
+        int maxScore = 0;
+        for (int i = 0; i < result.length; i++) {
+            System.out.println("Chromosome " + i + ": ");
+            for (int j = 0; j < result[i].chromosome().getMoves().length; j++) {
+                System.out.println("Gene " + j + ": " + result[i].chromosome().getMoves()[j]);
+            }
+            if (result[i].score() > maxScore) {
+                maxScore = result[i].score();
+            }
+            System.out.println("Score: " + result[i].score());
+        }
+        System.out.println("Max score: " + aggregator.getBestScore());
+        System.out.println("Best trend: " + Arrays.toString(aggregator.getBestTrend()));
+        System.out.println("Best ids: " + Arrays.toString(aggregator.getBestIds()));
+        System.out.println("Worst trend: " + Arrays.toString(aggregator.getWorstTrend()));
+        System.out.println("Mean trend: " + Arrays.toString(aggregator.getMeanTrend()));
+    }
+
+    private GameState prepareComboOpportunityGameState() {
+        return new GameState(
+                new ArrayList<>(List.of(
+                        new Position(8000,4500),
+                        new Position(9000,4500),
+                        new Position(10000,4500),
+                        new Position(11000,4500),
+                        new Position(12000,4500),
+                        new Position(13000,4500),
+                        new Position(14000,4500),
+                        new Position(15000,3500),
+                        new Position(14500,2500),
+                        new Position(15900,500)
+                )),
+                new Position(500,4500),
+                new ArrayList<>(List.of(
+                        new Position(100,4000),
+                        new Position(130,5000),
+                        new Position(10,4500),
+                        new Position(500,3500),
+                        new Position(10,5500),
+                        new Position(100,3000)
+                ))
+        );
+    }
+
     private GameState prepareSimpleGameState() {
         // based on the test case 1 from codingame
         return new GameState(

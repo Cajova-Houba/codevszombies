@@ -22,7 +22,7 @@ public class ContinuousGenericAlgorithm {
         this.gameEngine = new GameEngine();
     }
 
-    public EvaluatedChromosome[] run(AlgorithmConfiguration configuration, GameState initialState) {
+    public EvaluatedChromosome[] run(AlgorithmConfiguration configuration, GameState initialState, ResultsAggregator aggregator) {
         // generate initial population
         ChromosomeSolution[] population = generateInitialPopulation(configuration.populationSize());
 
@@ -34,10 +34,18 @@ public class ContinuousGenericAlgorithm {
                 evaluatedPopulation[j] = new EvaluatedChromosome(population[j], evaluateChromosome(population[j], initialState.clone()));
             }
 
+            if (aggregator != null) {
+                aggregator.addGeneration(evaluatedPopulation);
+            }
+
             // based on the evaluation, generate new population
             population = generateNewPopulation(configuration, evaluatedPopulation);
         }
         return evaluatedPopulation;
+    }
+
+    public EvaluatedChromosome[] run(AlgorithmConfiguration configuration, GameState initialState) {
+        return run(configuration, initialState, null);
     }
 
     /**

@@ -120,6 +120,8 @@ class ContinuousGenericAlgorithmTest {
 
         printResults(result, aggregator);
 
+        saveGameplayToSvg(game, aggregator, "comboOpportunity");
+
         assertNotEquals(0, aggregator.getBestScore());
     }
 
@@ -134,12 +136,12 @@ class ContinuousGenericAlgorithmTest {
 
         printResults(result, aggregator);
 
-        saveGameplayToSvg(game, aggregator);
+        saveGameplayToSvg(game, aggregator, "unavoidableDeaths");
 
         assertNotEquals(0, aggregator.getBestScore());
     }
 
-    private void saveGameplayToSvg(GameState initialState, ResultsAggregator aggregator) {
+    private void saveGameplayToSvg(GameState initialState, ResultsAggregator aggregator, String filename) {
         List<GameplayRecorder[]> generationGameplays = aggregator.getGenerationGameplays();
         int[] best = aggregator.getBest();
         GameplayRecorder gameplay = generationGameplays.get(best[0])[best[1]];
@@ -147,7 +149,7 @@ class ContinuousGenericAlgorithmTest {
         String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y);
 
         try {
-            Files.writeString(Paths.get("gameplay.svg"), svg);
+            Files.writeString(Paths.get(filename+".svg"), svg);
         } catch (IOException e) {
             e.printStackTrace();
         }

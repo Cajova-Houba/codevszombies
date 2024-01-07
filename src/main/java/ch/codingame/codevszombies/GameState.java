@@ -6,7 +6,7 @@ public class GameState {
     public static final int[] FIB_SEQ = new int[] {0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144};
 
     /**
-     * Zombies ordered by id.
+     * Zombies ordered by id. Zombies are kept and if zombie dies, null is put in its place.
      */
     private final List<Position> zombies;
 
@@ -63,23 +63,27 @@ public class GameState {
 
         // iterate over zombies
         // move each zombie towards closest human
-        for (int i = 0; i < zombies.size(); i++) {
-            Position zombie = zombies.get(i);
-            Position closestHuman = findClosestHuman(zombie);
-
-            if (zombie.equals(closestHuman)) {
-                System.err.println("Zombie "+i+" is already at the closest human: " + closestHuman);
+        for (int zombieId = 0; zombieId < zombies.size(); zombieId++) {
+            Position zombie = zombies.get(zombieId);
+            if (zombie == null) {
                 continue;
             }
 
-            zombies.set(i, zombie.moveTo(closestHuman, zombieSpeed));
-            zombie = zombies.get(i);
+            Position closestHuman = findClosestHuman(zombie);
+
+            if (zombie.equals(closestHuman)) {
+                System.err.println("Zombie "+zombieId+" is already at the closest human: " + closestHuman);
+                continue;
+            }
+
+            zombies.set(zombieId, zombie.moveTo(closestHuman, zombieSpeed));
+            zombie = zombies.get(zombieId);
 
             // if zombie is < range from human, it will move to human's position BUT NOT EAT IT
             if (zombie.squareDistanceFrom(closestHuman) < (zombieSpeed*zombieSpeed)) {
-                System.err.println("Zombie "+i+" is moving to the closest human: " + closestHuman);
+                System.err.println("Zombie "+zombieId+" is moving to the closest human: " + closestHuman);
                 zombie = closestHuman.clone();
-                zombies.set(i, zombie);
+                zombies.set(zombieId, zombie);
                 zombiesPlayed.add(zombie.hashCode());
             }
         }
@@ -108,12 +112,16 @@ public class GameState {
      */
     public void destroyZombies(int ashRange) {
         int kills = 0;
-        for (int i = zombies.size() - 1; i >= 0; i--) {
-            Position zombie = zombies.get(i);
+        for (int zombieId = zombies.size() - 1; zombieId >= 0; zombieId--) {
+            Position zombie = zombies.get(zombieId);
+            if (zombie == null) {
+                continue;
+            }
+
             if (zombie.squareDistanceFrom(ash) < (ashRange*ashRange)) {
                 kills++;
-                zombies.remove(i);
-                System.err.println("Zombie killed: " + zombie);
+                zombies.set(zombieId, null);
+                System.err.println("Zombie "+zombieId+" killed: " + zombie);
             }
         }
 
@@ -127,9 +135,9 @@ public class GameState {
     public void eatHumans(int zombieRange) {
         for (int i = humans.size() - 1; i >= 0; i--) {
             Position human = humans.get(i);
-            for (int j = 0; j < zombies.size(); j++) {
-                Position zombie = zombies.get(j);
-                if (zombiesPlayed.contains(zombie.hashCode())) {
+            for (int zombieId = 0; zombieId < zombies.size(); zombieId++) {
+                Position zombie = zombies.get(zombieId);
+                if (zombie == null || zombiesPlayed.contains(zombie.hashCode())) {
                     continue;
                 }
                 if (zombie.squareDistanceFrom(human) < (zombieRange*zombieRange)) {
@@ -143,7 +151,7 @@ public class GameState {
                     }
 
                     // zombie moves to human's coordinates
-                    zombies.set(j, human.clone());
+                    zombies.set(zombieId, human.clone());
                     break;
                 }
             }
@@ -155,7 +163,11 @@ public class GameState {
      * @return True if there are no humans left.
      */
     public boolean isGameOver() {
-        return humans.isEmpty() || zombies.isEmpty();
+        return humans.isEmpty() || !anyZombies();
+    }
+
+    boolean anyZombies() {
+        return zombies.stream().anyMatch(Objects::nonNull);
     }
 
     public void printState() {

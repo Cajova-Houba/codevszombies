@@ -5,6 +5,8 @@ import ch.codingame.codevszombies.GameState;
 import ch.codingame.codevszombies.GameplayRecorder;
 import ch.codingame.codevszombies.Position;
 
+import java.util.List;
+
 public class SvgExporter {
 
     public static final String BG_FILL = "#FFFFFF";
@@ -25,6 +27,28 @@ public class SvgExporter {
     public static String exportToSvg(GameState initialState, GameplayRecorder gameplay, int width, int height) {
         StringBuilder sb = new StringBuilder();
         sb.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"").append(width).append("\" height=\"").append(height).append("\" viewBox=\"0 0").append(width).append(" ").append(height).append("\">\n");
+        sb.append("<defs>\n" +
+                "    <marker \n" +
+                "      id='head-z' \n" +
+                "      orient=\"auto\" \n" +
+                "      markerWidth='5' \n" +
+                "      markerHeight='10' \n" +
+                "      refX='10' \n" +
+                "      refY='5'\n" +
+                "    >\n" +
+                "      <path d='M0,0 V10 L5,5 Z' fill=\""+ZOMBIE_FILL+"\" />\n" +
+                "    </marker>\n" +
+                "    <marker \n" +
+                "      id='head-a' \n" +
+                "      orient=\"auto\" \n" +
+                "      markerWidth='5' \n" +
+                "      markerHeight='10' \n" +
+                "      refX='10' \n" +
+                "      refY='5'\n" +
+                "    >\n" +
+                "      <path d='M0,0 V10 L5,5 Z' fill=\""+ASH_FILL+"\" />\n" +
+                "    </marker>\n" +
+                "  </defs>");
         sb.append("<g transform=\"scale(0.25 0.25)\">\n");
         sb.append("<rect width=\"").append(width).append("\" height=\"").append(height).append("\" fill=\""+BG_FILL+"\" stroke=\"#000000\" stroke-width=\"5\"/>\n");
 
@@ -34,12 +58,22 @@ public class SvgExporter {
         }
 
         // zombies
-        for (Position zombie : initialState.getZombies()) {
-            // range
-            sb.append("<circle cx=\"").append(zombie.x()).append("\" cy=\"").append(zombie.y()).append("\" r=\"").append(GameEngine.ZOMBIE_RANGE).append("\" fill=\""+ZOMBIE_FILL+"\" opacity=\"0.3\"/>\n");
+        for (int zombieId = 0; zombieId < gameplay.getZombiesMovement().size(); zombieId++) {
+            List<Position> zombieMovement = gameplay.getZombiesMovement().get(zombieId);
+            Position lastPos = null;
+            for (Position zombiePos : zombieMovement) {
+                // zombie's range
+                sb.append("<circle cx=\"").append(zombiePos.x()).append("\" cy=\"").append(zombiePos.y()).append("\" r=\"").append(GameEngine.ZOMBIE_RANGE).append("\" fill=\""+ZOMBIE_FILL+"\" opacity=\"0.1\"/>\n");
+                // zombie
+                sb.append("<circle cx=\"").append(zombiePos.x()).append("\" cy=\"").append(zombiePos.y()).append("\" r=\"").append(ZOMBIE_RAD).append("\" fill=\""+ZOMBIE_FILL+"\" />\n");
 
-            // zombie
-            sb.append("<circle cx=\"").append(zombie.x()).append("\" cy=\"").append(zombie.y()).append("\" r=\"").append(ZOMBIE_RAD).append("\" fill=\""+ZOMBIE_FILL+"\" />\n");
+                if (lastPos != null && !zombiePos.equals(lastPos)) {
+                    final String d = String.format("M%d,%d L%d,%d", lastPos.x(), lastPos.y(), zombiePos.x(), zombiePos.y());
+                    sb.append("<path marker-end=\"url(#head-z)\" d=\"").append(d).append("\" stroke=\"").append(ZOMBIE_FILL).append("\" stroke-width=\"").append(ASH_STROKE_WIDTH).append("\" />\n");
+                }
+
+                lastPos = zombiePos;
+            }
         }
 
         // ash's movement, initial position is included
@@ -51,7 +85,8 @@ public class SvgExporter {
             sb.append("<circle cx=\"").append(ashPos.x()).append("\" cy=\"").append(ashPos.y()).append("\" r=\"").append(ASH_RAD).append("\" fill=\""+ASH_FILL+"\" />\n");
 
             if (lastPos != null) {
-                sb.append("<line x1=\"").append(lastPos.x()).append("\" y1=\"").append(lastPos.y()).append("\" x2=\"").append(ashPos.x()).append("\" y2=\"").append(ashPos.y()).append("\" stroke=\""+ASH_FILL+"\" stroke-width=\""+ASH_STROKE_WIDTH+"\" />\n");
+                final String d = String.format("M%d,%d L%d,%d", lastPos.x(), lastPos.y(), ashPos.x(), ashPos.y());
+                sb.append("<path marker-end=\"url(#head-a)\" d=\"").append(d).append("\" stroke=\"").append(ASH_FILL).append("\" stroke-width=\"").append(ASH_STROKE_WIDTH).append("\" />\n");
             }
 
             lastPos = ashPos;

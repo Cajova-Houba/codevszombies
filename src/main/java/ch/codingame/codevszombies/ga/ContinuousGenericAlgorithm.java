@@ -167,8 +167,11 @@ public class ContinuousGenericAlgorithm {
         return children;
     }
 
-
     private ChromosomeSolution[] generateInitialPopulation(int populationSize) {
+        // todo: try using following star as initial population:
+        //   - star has populationSize rays
+        //   - rays are evenly distributed around the star
+        //   - each ray is a straight path from ash to the border of the map
         ChromosomeSolution[] population = new ChromosomeSolution[populationSize];
         for (int i = 0; i < populationSize; i++) {
             population[i] = generateRandomChromosome();

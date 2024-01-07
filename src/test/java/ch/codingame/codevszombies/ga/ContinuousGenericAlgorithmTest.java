@@ -129,7 +129,7 @@ class ContinuousGenericAlgorithmTest {
     void run_unavoidableDeaths_20gen() {
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(GameEngine.MAX_X, GameEngine.MAX_Y, 40);
         final GameState game = prepareUnavoidableDeathsGameState();
-        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(60, 20, 30, 0,0.5f, 0.2f);
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(60, 20, 30, 0,0.3f, 0.1f);
         final ResultsAggregator aggregator = new ResultsAggregator();
         final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
 

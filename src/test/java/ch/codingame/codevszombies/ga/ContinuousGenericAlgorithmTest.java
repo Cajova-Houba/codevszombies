@@ -143,15 +143,18 @@ class ContinuousGenericAlgorithmTest {
 
     private void saveGameplayToSvg(GameState initialState, ResultsAggregator aggregator, String filename) {
         List<GameplayRecorder[]> generationGameplays = aggregator.getGenerationGameplays();
-        int[] best = aggregator.getBest();
-        GameplayRecorder gameplay = generationGameplays.get(best[0])[best[1]];
+        int[] bestIds = aggregator.getBestIds();
+        for (int generation = 0; generation < generationGameplays.size(); generation++) {
+            GameplayRecorder[] gameplays = generationGameplays.get(generation);
+            GameplayRecorder gameplay = gameplays[bestIds[generation]];
 
-        String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y, 800+200, 450+112, aggregator.getBestScore());
+                String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y, 800+200, 450+112, aggregator.getBestTrend()[generation]);
 
-        try {
-            Files.writeString(Paths.get(filename+".svg"), svg);
-        } catch (IOException e) {
-            e.printStackTrace();
+                try {
+                    Files.writeString(Paths.get(filename+"_gen_"+generation+".svg"), svg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
     }
 

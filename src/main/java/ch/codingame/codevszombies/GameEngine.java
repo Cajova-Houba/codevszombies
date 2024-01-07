@@ -82,6 +82,10 @@ public class GameEngine {
                 gameplayRecorder.recordGameState(gameState);
             }
         }
+
+        if (recordGameplay) {
+            gameplayRecorder.recordRemainingHumans(gameState);
+        }
         return gameState.getScore();
     }
 

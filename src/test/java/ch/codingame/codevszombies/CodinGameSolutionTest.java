@@ -38,6 +38,24 @@ class CodinGameSolutionTest {
         assertEquals(10, score);
     }
 
+    /**
+     * Simple test case from codin game but Ash does nothing, thus letting all humans die.
+     */
+    @Test
+    void testCaseSimple_fail() {
+        final GameState game = new GameState(
+                new ArrayList<>(List.of(new Position(8250,8999))),
+                new Position(0, 0),
+                new ArrayList<>(List.of(new Position(8250,4500)))
+        );
+
+        final ISolution solution = () -> "0 0";
+
+        int score = engine.playGame(game, solution);
+
+        assertEquals(0, score);
+    }
+
     @Test
     void testCase2Zombies() {
         final GameState game = new GameState(

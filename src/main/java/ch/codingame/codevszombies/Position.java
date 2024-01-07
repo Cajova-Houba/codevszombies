@@ -18,6 +18,10 @@ public record Position(int x, int y) {
         return new Position((int)(x + dx * units), (int)(y + dy * units));
     }
 
+    public Position scale(double sx, double sy) {
+        return new Position((int)(x * sx), (int)(y * sy));
+    }
+
     public Position clone() {
         return new Position(x, y);
     }

@@ -1,6 +1,7 @@
 package ch.codingame.codevszombies;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -11,9 +12,12 @@ public class GameplayRecorder {
     private final List<Position> ashMovement;
     private final List<List<Position>> zombiesMovement;
 
+    private final List<Position> remainingHumans;
+
     public GameplayRecorder() {
         this.ashMovement = new ArrayList<>();
         this.zombiesMovement = new ArrayList<>();
+        this.remainingHumans = new ArrayList<>();
     }
 
     public void recordAshMovement(Position position) {
@@ -28,9 +32,17 @@ public class GameplayRecorder {
         return zombiesMovement;
     }
 
+    public List<Position> getRemainingHumans() {
+        return remainingHumans;
+    }
+
     public void recordGameState(GameState gameState) {
         recordAshMovement(gameState.getAsh());
         recordZombiesMovement(gameState.getZombies());
+    }
+
+    public void recordRemainingHumans(GameState gameState) {
+        remainingHumans.addAll(gameState.getHumans());
     }
 
     private void recordZombiesMovement(List<Position> zombies) {

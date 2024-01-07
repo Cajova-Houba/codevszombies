@@ -41,7 +41,8 @@ public class ResultsAggregator {
     }
 
     public int getBestScore() {
-        return generations.stream().mapToInt(g -> g.bestScore).max().orElse(-1);
+        int[] best = getBest();
+        return generations.get(best[0]).generation[best[1]].score();
     }
 
     public int[] getBestIds() {

@@ -129,7 +129,6 @@ class ContinuousGenericAlgorithmTest {
     void run_unavoidableDeaths_20gen() {
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(GameEngine.MAX_X, GameEngine.MAX_Y, 40);
         final GameState game = prepareUnavoidableDeathsGameState();
-        // todo: populationSize + matingCount only works when matingCount = populationSize/2, otherwise new population is not filled properly
         final AlgorithmConfiguration configuration = new AlgorithmConfiguration(60, 20, 30, 0,0.5f, 0.2f);
         final ResultsAggregator aggregator = new ResultsAggregator();
         final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
@@ -146,7 +145,7 @@ class ContinuousGenericAlgorithmTest {
         int[] best = aggregator.getBest();
         GameplayRecorder gameplay = generationGameplays.get(best[0])[best[1]];
 
-        String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y);
+        String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y, 800+200, 450+112, aggregator.getBestScore());
 
         try {
             Files.writeString(Paths.get(filename+".svg"), svg);

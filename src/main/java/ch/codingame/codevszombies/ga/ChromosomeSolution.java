@@ -26,7 +26,7 @@ public class ChromosomeSolution implements ISolution {
 
         @Override
         public String getNextMove() {
-            Position nextMove = moves[index++];
+            Position nextMove = index >= moves.length ? moves[moves.length - 1] : moves[index++];
             return nextMove.x() + " " + nextMove.y();
         }
 

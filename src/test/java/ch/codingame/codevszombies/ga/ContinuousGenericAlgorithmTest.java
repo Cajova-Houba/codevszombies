@@ -111,7 +111,7 @@ class ContinuousGenericAlgorithmTest {
 
     @Test
     void run_comboOpportunity_20gen() {
-        final int chromoSize = 40;
+        final int chromoSize = 30;
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 40);
         final GameState game = prepareComboOpportunityGameState();
         final AlgorithmConfiguration configuration = new AlgorithmConfiguration(20, 20, 10, chromoSize - 10,0.5f, 0.2f);
@@ -127,9 +127,10 @@ class ContinuousGenericAlgorithmTest {
 
     @Test
     void run_unavoidableDeaths_20gen() {
+        final int chromoSize = 30;
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(GameEngine.MAX_X, GameEngine.MAX_Y, 40);
         final GameState game = prepareUnavoidableDeathsGameState();
-        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(60, 20, 30, 0,0.3f, 0.1f);
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(chromoSize, 20, 30, 0,0.3f, 0.1f);
         final ResultsAggregator aggregator = new ResultsAggregator();
         final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
 

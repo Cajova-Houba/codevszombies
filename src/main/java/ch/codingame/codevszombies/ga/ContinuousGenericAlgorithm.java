@@ -25,7 +25,8 @@ public class ContinuousGenericAlgorithm {
 
     public EvaluatedChromosome[] run(AlgorithmConfiguration configuration, GameState initialState, ResultsAggregator aggregator) {
         // generate initial population
-        ChromosomeSolution[] population = generateInitialPopulation(configuration.populationSize());
+        //ChromosomeSolution[] population = generateInitialPopulation(configuration.populationSize());
+        ChromosomeSolution[] population = generateStarInitialPopulation(configuration.populationSize(), initialState.getAsh());
 
         EvaluatedChromosome[] evaluatedPopulation = new EvaluatedChromosome[configuration.populationSize()];
         for (int i = 0; i < configuration.generations(); i++) {
@@ -167,11 +168,49 @@ public class ContinuousGenericAlgorithm {
         return children;
     }
 
+    /**
+     * star as initial population:
+     * - star has populationSize rays
+     * - rays are evenly distributed around the star
+     * - each ray is a straight path from ash to the border of the map
+     */
+    private ChromosomeSolution[] generateStarInitialPopulation(int populationSize, Position ashStart) {
+        ChromosomeSolution[] population = new ChromosomeSolution[populationSize];
+        for (int i = 0; i < populationSize; i++) {
+            double angleRad = (i * 2 * Math.PI) / populationSize;
+            population[i] = generateStarChromosome(chromosomeSize, ashStart, angleRad);
+        }
+        return population;
+    }
+
+    private ChromosomeSolution generateStarChromosome(int chromosomeSize, Position ashStart, double angleRad) {
+        Position[] genes = new Position[chromosomeSize];
+
+        // move in given direction until the border of the map is reached
+        Position lastPos = ashStart;
+        for (int i = 0; i < chromosomeSize; i++) {
+            int x = (int) (lastPos.x() + (GameEngine.ASH_SPEED * Math.cos(angleRad)));
+            int y = (int) (lastPos.y() + (GameEngine.ASH_SPEED * Math.sin(angleRad)));
+
+            // check constraints
+            if (x < 0) {
+                x = 0;
+            } else if (x >= maxX) {
+                x = maxX - 1;
+            }
+            if (y < 0) {
+                y = 0;
+            } else if (y >= maxY) {
+                y = maxY - 1;
+            }
+
+            genes[i] = new Position(x, y);
+            lastPos = genes[i];
+        }
+        return new ChromosomeSolution(genes);
+    }
+
     private ChromosomeSolution[] generateInitialPopulation(int populationSize) {
-        // todo: try using following star as initial population:
-        //   - star has populationSize rays
-        //   - rays are evenly distributed around the star
-        //   - each ray is a straight path from ash to the border of the map
         ChromosomeSolution[] population = new ChromosomeSolution[populationSize];
         for (int i = 0; i < populationSize; i++) {
             population[i] = generateRandomChromosome();

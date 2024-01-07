@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,16 +80,15 @@ class ContinuousGenericAlgorithmTest {
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 12);
         final GameState game = prepareSimpleGameState();
         final AlgorithmConfiguration configuration = new AlgorithmConfiguration(10, 1, 5, 0,0.5f, 0f);
-        final EvaluatedChromosome[] result = algorithm.run(configuration, game);
+        final ResultsAggregator aggregator = new ResultsAggregator();
+        final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
 
         // print
-        for (int i = 0; i < result.length; i++) {
-            System.out.println("Chromosome " + i + ": ");
-            for (int j = 0; j < result[i].chromosome().getMoves().length; j++) {
-                System.out.println("Gene " + j + ": " + result[i].chromosome().getMoves()[j]);
-            }
-            System.out.println("Score: " + result[i].score());
-        }
+        printResults(result, aggregator, "simple_1gen");
+
+        saveGameplayToSvg(game, aggregator, "simple_1gen");
+
+        assertNotEquals(0, aggregator.getBestScore());
     }
 
     @Test
@@ -118,7 +118,7 @@ class ContinuousGenericAlgorithmTest {
         final ResultsAggregator aggregator = new ResultsAggregator();
         final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
 
-        printResults(result, aggregator);
+        printResults(result, aggregator, "comboOpportunity");
 
         saveGameplayToSvg(game, aggregator, "comboOpportunity");
 
@@ -126,15 +126,15 @@ class ContinuousGenericAlgorithmTest {
     }
 
     @Test
-    void run_unavoidableDeaths_20gen() {
+    void run_unavoidableDeaths_30gen() {
         final int chromoSize = 30;
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(GameEngine.MAX_X, GameEngine.MAX_Y, 40);
         final GameState game = prepareUnavoidableDeathsGameState();
-        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(chromoSize, 20, 30, 0,0.3f, 0.1f);
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(chromoSize, 30, 30, 0,0.3f, 0.1f);
         final ResultsAggregator aggregator = new ResultsAggregator();
         final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
 
-        printResults(result, aggregator);
+        printResults(result, aggregator, "unavoidableDeaths");
 
         saveGameplayToSvg(game, aggregator, "unavoidableDeaths");
 
@@ -155,23 +155,42 @@ class ContinuousGenericAlgorithmTest {
         }
     }
 
-    private void printResults(EvaluatedChromosome[] result, ResultsAggregator aggregator) {
+    private void printResults(EvaluatedChromosome[] result, ResultsAggregator aggregator, String filename) {
         int maxScore = 0;
-        for (int i = 0; i < result.length; i++) {
-            System.out.println("Chromosome " + i + ": ");
-            for (int j = 0; j < result[i].chromosome().getMoves().length; j++) {
-                System.out.println("Gene " + j + ": " + result[i].chromosome().getMoves()[j]);
-            }
-            if (result[i].score() > maxScore) {
-                maxScore = result[i].score();
-            }
-            System.out.println("Score: " + result[i].score());
+        //for (int i = 0; i < result.length; i++) {
+        //    System.out.println("Chromosome " + i + ": ");
+        //    for (int j = 0; j < result[i].chromosome().getMoves().length; j++) {
+        //        System.out.println("Gene " + j + ": " + result[i].chromosome().getMoves()[j]);
+        //    }
+        //    if (result[i].score() > maxScore) {
+        //        maxScore = result[i].score();
+        //    }
+        //    System.out.println("Score: " + result[i].score());
+        //}
+        StringBuilder csvBuilder = new StringBuilder();
+        csvBuilder.append("max;").append(aggregator.getBestScore()).append("\n");
+        csvBuilder.append("best trend;").append(Arrays.stream(aggregator.getBestTrend())
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(";"))
+            ).append("\n");
+        csvBuilder.append("best ids;").append(Arrays.stream(aggregator.getBestIds())
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(";"))
+        ).append("\n");
+        csvBuilder.append("worst trend;").append(Arrays.stream(aggregator.getWorstTrend())
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(";"))
+        ).append("\n");
+        csvBuilder.append("mean trend;").append(Arrays.stream(aggregator.getMeanTrend())
+                .mapToObj(String::valueOf)
+                .collect(Collectors.joining(";"))
+        ).append("\n");
+
+        try {
+            Files.writeString(Paths.get(filename+".csv"), csvBuilder.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        System.out.println("Max score: " + aggregator.getBestScore());
-        System.out.println("Best trend: " + Arrays.toString(aggregator.getBestTrend()));
-        System.out.println("Best ids: " + Arrays.toString(aggregator.getBestIds()));
-        System.out.println("Worst trend: " + Arrays.toString(aggregator.getWorstTrend()));
-        System.out.println("Mean trend: " + Arrays.toString(aggregator.getMeanTrend()));
     }
 
     private GameState prepareUnavoidableDeathsGameState() {

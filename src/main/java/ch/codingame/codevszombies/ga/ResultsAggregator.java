@@ -3,6 +3,7 @@ package ch.codingame.codevszombies.ga;
 import ch.codingame.codevszombies.GameplayRecorder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ResultsAggregator {
@@ -28,16 +29,16 @@ public class ResultsAggregator {
      * [1] = id of the chromosome in the generation
      */
     public int[] getBest() {
-        int bestId = -1;
+        int bestGenerationId = -1;
         int bestScore = Integer.MIN_VALUE;
-        for (int i = 0; i < generations.size(); i++) {
-            EvaluatedGeneration generation = generations.get(i);
+        for (int generationId = 0; generationId < generations.size(); generationId++) {
+            EvaluatedGeneration generation = generations.get(generationId);
             if (generation.bestScore > bestScore) {
-                bestId = i;
+                bestGenerationId = generationId;
                 bestScore = generation.bestScore;
             }
         }
-        return new int[] {bestId, generations.get(bestId).bestId};
+        return new int[] {bestGenerationId, generations.get(bestGenerationId).bestId};
     }
 
     public int getBestScore() {
@@ -84,7 +85,14 @@ public class ResultsAggregator {
         }
         int meanScore = sum / generation.length;
         int averageScore = (bestScore + worstScore) / 2;
-        return new EvaluatedGeneration(generation, bestId, bestScore, worstScore, meanScore, averageScore);
+
+        // story copy of the generation
+        EvaluatedChromosome[] generationCopy = new EvaluatedChromosome[generation.length];
+        for (int i = 0; i < generation.length; i++) {
+            generationCopy[i] = new EvaluatedChromosome(generation[i].chromosome(), generation[i].score());
+        }
+
+        return new EvaluatedGeneration(generationCopy, bestId, bestScore, worstScore, meanScore, averageScore);
 
     }
 }

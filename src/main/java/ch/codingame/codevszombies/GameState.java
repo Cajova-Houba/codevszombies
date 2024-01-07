@@ -163,10 +163,10 @@ public class GameState {
      * @return True if there are no humans left.
      */
     public boolean isGameOver() {
-        return humans.isEmpty() || !anyZombies();
+        return humans.isEmpty() || !anyZombiesLeft();
     }
 
-    boolean anyZombies() {
+    boolean anyZombiesLeft() {
         return zombies.stream().anyMatch(Objects::nonNull);
     }
 

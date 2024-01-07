@@ -75,14 +75,14 @@ public class GameEngine {
         }
         while (!gameState.isGameOver()) {
             System.err.println("Turn " + turnCounter++);
-            gameState.printState();
+            //gameState.printState();
             playTurn(gameState, solution);
 
             if (recordGameplay) {
                 gameplayRecorder.recordGameState(gameState);
             }
         }
-        return initialGameState.getScore();
+        return gameState.getScore();
     }
 
     public GameplayRecorder getLastGameplayRecord() {

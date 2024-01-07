@@ -100,6 +100,8 @@ public class ContinuousGenericAlgorithm {
 
     ChromosomeSolution[] generateNewPopulation(AlgorithmConfiguration configuration, EvaluatedChromosome[] evaluatedPopulation) {
 
+        List<ChromosomeSolution> population = new ArrayList<>();
+
         // select N best chromosomes for mating
         EvaluatedChromosome[] bestChromosomes = selectNBest(evaluatedPopulation, configuration.matingCount());
 
@@ -107,22 +109,18 @@ public class ContinuousGenericAlgorithm {
         int[][] pairs = selectPairsToMate(configuration.matingCount());
         EvaluatedChromosome[][] matingPairs = createPairsToMate(bestChromosomes, pairs);
 
-        // mating
-        ChromosomeSolution[] children = mate(configuration, matingPairs);
+        // mate until the new population is full
+        while(population.size() < configuration.populationSize()) {
+            ChromosomeSolution[] children = mate(configuration, matingPairs);
+            population.addAll(Arrays.asList(children));
+        }
 
-        // merge together parents and children into the new population
-        ChromosomeSolution[] population = new ChromosomeSolution[evaluatedPopulation.length];
-        for (int i = 0; i < bestChromosomes.length; i++) {
-            population[i] = bestChromosomes[i].chromosome();
-        }
-        for (int i = 0; i < children.length; i++) {
-            population[i + bestChromosomes.length] = children[i];
-        }
+        ChromosomeSolution[] populationArray = population.toArray(new ChromosomeSolution[population.size()]);
 
         // mutate
-        mutatePopulation(configuration, population);
+        mutatePopulation(configuration, populationArray);
 
-        return population;
+        return populationArray;
     }
 
     void mutatePopulation(AlgorithmConfiguration configuration, ChromosomeSolution[] population) {

@@ -2,6 +2,7 @@ package ch.codingame.codevszombies.ga;
 
 import ch.codingame.codevszombies.GameEngine;
 import ch.codingame.codevszombies.GameState;
+import ch.codingame.codevszombies.GameplayRecorder;
 import ch.codingame.codevszombies.Position;
 
 import java.util.*;
@@ -30,12 +31,14 @@ public class ContinuousGenericAlgorithm {
         for (int i = 0; i < configuration.generations(); i++) {
 
             // for each generation, evaluate population
+            GameplayRecorder[] gameplays = new GameplayRecorder[configuration.populationSize()];
             for (int j = 0; j < configuration.populationSize(); j++) {
                 evaluatedPopulation[j] = new EvaluatedChromosome(population[j], evaluateChromosome(population[j], initialState.clone()));
+                gameplays[j] = gameEngine.getLastGameplayRecord();
             }
 
             if (aggregator != null) {
-                aggregator.addGeneration(evaluatedPopulation);
+                aggregator.addGeneration(evaluatedPopulation, gameplays);
             }
 
             // based on the evaluation, generate new population
@@ -176,7 +179,7 @@ public class ContinuousGenericAlgorithm {
     }
 
     private int evaluateChromosome(ChromosomeSolution chromosome, GameState initialState) {
-        return gameEngine.playGame(initialState, chromosome);
+        return gameEngine.playGame(initialState, chromosome, true);
     }
 
     private int randomXInRange() {

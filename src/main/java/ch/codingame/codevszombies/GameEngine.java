@@ -52,21 +52,45 @@ package ch.codingame.codevszombies;
  */
 public class GameEngine {
 
+    public static final int MAX_X = 16000;
+    public static final int MAX_Y = 9000;
+
     public static final int ASH_SPEED = 1000;
 
     public static final int ASH_RANGE = 2000;
     public static final int ZOMBIE_RANGE = 400;
 
-    public int playGame(GameState initialGameState, ISolution solution) {
+    private GameplayRecorder gameplayRecorder;
+
+    public int playGame(GameState initialGameState, ISolution solution, boolean recordGameplay) {
         // todo: negative score on error/all humans dead
         int turnCounter = 1;
+        GameState gameState = initialGameState.clone();
         solution.init();
-        while (!initialGameState.isGameOver()) {
+        if (recordGameplay) {
+            gameplayRecorder = new GameplayRecorder();
+        }
+        if (recordGameplay) {
+            gameplayRecorder.recordGameState(gameState);
+        }
+        while (!gameState.isGameOver()) {
             System.err.println("Turn " + turnCounter++);
-            initialGameState.printState();
-            playTurn(initialGameState, solution);
+            gameState.printState();
+            playTurn(gameState, solution);
+
+            if (recordGameplay) {
+                gameplayRecorder.recordGameState(gameState);
+            }
         }
         return initialGameState.getScore();
+    }
+
+    public GameplayRecorder getLastGameplayRecord() {
+        return gameplayRecorder;
+    }
+
+    public int playGame(GameState initialGameState, ISolution solution) {
+        return playGame(initialGameState, solution, false);
     }
 
     void playTurn(GameState gameState, ISolution solution) {

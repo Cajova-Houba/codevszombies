@@ -1,17 +1,43 @@
 package ch.codingame.codevszombies.ga;
 
+import ch.codingame.codevszombies.GameplayRecorder;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ResultsAggregator {
 
     private final List<EvaluatedGeneration> generations;
+    private final List<GameplayRecorder[]> generationGameplays;
     public ResultsAggregator() {
         generations = new ArrayList<>();
+        generationGameplays = new ArrayList<>();
     }
 
-    public void addGeneration(EvaluatedChromosome[] generation) {
+    public void addGeneration(EvaluatedChromosome[] generation, GameplayRecorder[] gameplays) {
         generations.add(evaluateGeneration(generation));
+        generationGameplays.add(gameplays);
+    }
+
+    public List<GameplayRecorder[]> getGenerationGameplays() {
+        return generationGameplays;
+    }
+
+    /**
+     * [0] = id of the generation
+     * [1] = id of the chromosome in the generation
+     */
+    public int[] getBest() {
+        int bestId = -1;
+        int bestScore = Integer.MIN_VALUE;
+        for (int i = 0; i < generations.size(); i++) {
+            EvaluatedGeneration generation = generations.get(i);
+            if (generation.bestScore > bestScore) {
+                bestId = i;
+                bestScore = generation.bestScore;
+            }
+        }
+        return new int[] {bestId, generations.get(bestId).bestId};
     }
 
     public int getBestScore() {

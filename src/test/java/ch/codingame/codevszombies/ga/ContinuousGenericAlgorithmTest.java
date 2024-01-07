@@ -1,9 +1,15 @@
 package ch.codingame.codevszombies.ga;
 
+import ch.codingame.codevszombies.GameEngine;
 import ch.codingame.codevszombies.GameState;
+import ch.codingame.codevszombies.GameplayRecorder;
 import ch.codingame.codevszombies.Position;
+import ch.codingame.codevszombies.export.SvgExporter;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -119,7 +125,7 @@ class ContinuousGenericAlgorithmTest {
 
     @Test
     void run_unavoidableDeaths_20gen() {
-        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 40);
+        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(GameEngine.MAX_X, GameEngine.MAX_Y, 40);
         final GameState game = prepareUnavoidableDeathsGameState();
         // todo: populationSize + matingCount only works when matingCount = populationSize/2, otherwise new population is not filled properly
         final AlgorithmConfiguration configuration = new AlgorithmConfiguration(60, 20, 30, 0,0.5f, 0.2f);
@@ -128,7 +134,23 @@ class ContinuousGenericAlgorithmTest {
 
         printResults(result, aggregator);
 
+        saveGameplayToSvg(game, aggregator);
+
         assertNotEquals(0, aggregator.getBestScore());
+    }
+
+    private void saveGameplayToSvg(GameState initialState, ResultsAggregator aggregator) {
+        List<GameplayRecorder[]> generationGameplays = aggregator.getGenerationGameplays();
+        int[] best = aggregator.getBest();
+        GameplayRecorder gameplay = generationGameplays.get(best[0])[best[1]];
+
+        String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y);
+
+        try {
+            Files.writeString(Paths.get("gameplay.svg"), svg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void printResults(EvaluatedChromosome[] result, ResultsAggregator aggregator) {

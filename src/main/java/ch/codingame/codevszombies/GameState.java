@@ -172,7 +172,7 @@ public class GameState {
         return humans.size()*humans.size() * 10 * fib;
     }
 
-    List<Position> getZombies() {
+    public List<Position> getZombies() {
         return zombies;
     }
 
@@ -192,7 +192,11 @@ public class GameState {
         return nearestHuman;
     }
 
-    List<Position> getHumans() {
+    public List<Position> getHumans() {
         return humans;
+    }
+
+    public Position getAsh() {
+        return ash;
     }
 }

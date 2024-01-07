@@ -107,8 +107,6 @@ public class ContinuousGenericAlgorithm {
         // mating
         ChromosomeSolution[] children = mate(configuration, matingPairs);
 
-        // todo: mutation
-
         // merge together parents and children into the new population
         ChromosomeSolution[] population = new ChromosomeSolution[evaluatedPopulation.length];
         for (int i = 0; i < bestChromosomes.length; i++) {
@@ -118,7 +116,36 @@ public class ContinuousGenericAlgorithm {
             population[i + bestChromosomes.length] = children[i];
         }
 
+        // mutate
+        mutatePopulation(configuration, population);
+
         return population;
+    }
+
+    void mutatePopulation(AlgorithmConfiguration configuration, ChromosomeSolution[] population) {
+        int mutationCount = (int) (configuration.mutationRate() * population.length * chromosomeSize * 2);
+
+        // chromosomes in population
+        int[] pi = new int[mutationCount];
+
+        // genes in chromosome
+        int[] ci = new int[mutationCount];
+
+        // coordinates in gene
+        int[] gi = new int[mutationCount];
+
+        // randomly select coordinates in genes in chromosomes to mutate
+        for(int i = 0; i < mutationCount; i++) {
+            pi[i] = (int) (Math.random() * population.length);
+            ci[i] = (int) (Math.random() * chromosomeSize);
+            gi[i] = (int) (Math.random() * 2);
+        }
+
+        // mutate
+        for(int i = 0; i < mutationCount; i++) {
+            int newValue = gi[i] == 0 ? randomXInRange() : randomYInRange();
+            population[pi[i]].mutate(ci[i], gi[i], newValue);
+        }
     }
 
     /**
@@ -152,6 +179,14 @@ public class ContinuousGenericAlgorithm {
         return gameEngine.playGame(initialState, chromosome);
     }
 
+    private int randomXInRange() {
+        return (int)(Math.random() * maxX);
+    }
+
+    private int randomYInRange() {
+        return (int)(Math.random() * maxY);
+    }
+
     /**
      * Generate random chromosome. Each gene is a string of "x y" within boundaries of
      * 0 <= x < maxX and 0 <= y < maxY. Chromosome has chromosomeSize genes.
@@ -160,7 +195,7 @@ public class ContinuousGenericAlgorithm {
     private ChromosomeSolution generateRandomChromosome() {
         Position[] genes = new Position[chromosomeSize];
         for (int i = 0; i < chromosomeSize; i++) {
-            genes[i] = new Position((int)(Math.random() * maxX), (int)(Math.random() * maxY));
+            genes[i] = new Position(randomXInRange(), randomYInRange());
         }
         return new ChromosomeSolution(genes);
     }

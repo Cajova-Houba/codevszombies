@@ -29,4 +29,13 @@ public class ChromosomeSolution implements ISolution {
             Position nextMove = moves[index++];
             return nextMove.x() + " " + nextMove.y();
         }
+
+    public void mutate(int geneIndex, int coordinate, int newValue) {
+        Position geneToMutate = moves[geneIndex];
+        if (coordinate == 0) {
+            moves[geneIndex] = new Position(newValue, geneToMutate.y());
+        } else {
+            moves[geneIndex] = new Position(geneToMutate.x(), newValue);
+        }
+    }
 }

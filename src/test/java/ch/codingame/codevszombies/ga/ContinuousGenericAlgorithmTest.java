@@ -72,7 +72,7 @@ class ContinuousGenericAlgorithmTest {
     void run_simple_1Gen() {
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 12);
         final GameState game = prepareSimpleGameState();
-        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(10, 1, 5, 0.5f, 0.2f);
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(10, 1, 5, 0,0.5f, 0f);
         final EvaluatedChromosome[] result = algorithm.run(configuration, game);
 
         // print
@@ -87,9 +87,10 @@ class ContinuousGenericAlgorithmTest {
 
     @Test
     void run_simple_2Gen() {
-        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 12);
+        final int chromoSize = 12;
+        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, chromoSize);
         final GameState game = prepareSimpleGameState();
-        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(20, 2, 10, 0.5f, 0.2f);
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(20, 2, 10, 0, 0.5f, 0.2f);
         final EvaluatedChromosome[] result = algorithm.run(configuration, game);
 
         // print
@@ -104,13 +105,33 @@ class ContinuousGenericAlgorithmTest {
 
     @Test
     void run_comboOpportunity_20gen() {
+        final int chromoSize = 40;
         final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 40);
         final GameState game = prepareComboOpportunityGameState();
-        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(20, 20, 10, 0.5f, 0.2f);
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(20, 20, 10, chromoSize - 10,0.5f, 0.2f);
         final ResultsAggregator aggregator = new ResultsAggregator();
         final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
 
-        // print
+        printResults(result, aggregator);
+
+        assertNotEquals(0, aggregator.getBestScore());
+    }
+
+    @Test
+    void run_unavoidableDeaths_20gen() {
+        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(16000, 9000, 40);
+        final GameState game = prepareUnavoidableDeathsGameState();
+        // todo: populationSize + matingCount only works when matingCount = populationSize/2, otherwise new population is not filled properly
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(60, 20, 30, 0,0.5f, 0.2f);
+        final ResultsAggregator aggregator = new ResultsAggregator();
+        final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
+
+        printResults(result, aggregator);
+
+        assertNotEquals(0, aggregator.getBestScore());
+    }
+
+    private void printResults(EvaluatedChromosome[] result, ResultsAggregator aggregator) {
         int maxScore = 0;
         for (int i = 0; i < result.length; i++) {
             System.out.println("Chromosome " + i + ": ");
@@ -127,6 +148,28 @@ class ContinuousGenericAlgorithmTest {
         System.out.println("Best ids: " + Arrays.toString(aggregator.getBestIds()));
         System.out.println("Worst trend: " + Arrays.toString(aggregator.getWorstTrend()));
         System.out.println("Mean trend: " + Arrays.toString(aggregator.getMeanTrend()));
+    }
+
+    private GameState prepareUnavoidableDeathsGameState() {
+        return new GameState(
+                new ArrayList<>(List.of(
+                        new Position(0,3033),
+                        new Position(1500,6251),
+                        new Position(3000,2502),
+                        new Position(4500,6556),
+                        new Position(6000,3905),
+                        new Position(7500,5472),
+                        new Position(10500,2192),
+                        new Position(12000,6568),
+                        new Position(13500,7448)
+                )),
+                new Position(9000,684),
+                new ArrayList<>(List.of(
+                        new Position(15999,4500),
+                        new Position(8000,7999),
+                        new Position(0,4500)
+                ))
+        );
     }
 
     private GameState prepareComboOpportunityGameState() {

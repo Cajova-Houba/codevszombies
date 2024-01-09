@@ -141,6 +141,59 @@ class ContinuousGenericAlgorithmTest {
         assertNotEquals(0, aggregator.getBestScore());
     }
 
+    /**
+     * Rationale: what if we use only 1 generation = we start with a starshaped population and just select the best ray?
+     * Would that be good enough for start?
+     */
+    @Test
+    void run_unavoidableDeaths_1gen() {
+        final int popSize = 36;
+        final ContinuousGenericAlgorithm algorithm = new ContinuousGenericAlgorithm(GameEngine.MAX_X, GameEngine.MAX_Y, 40);
+        final GameState game = prepareUnavoidableDeathsGameState();
+        final AlgorithmConfiguration configuration = new AlgorithmConfiguration(popSize, 1, 30, 0,0.3f, 0.1f);
+        final ResultsAggregator aggregator = new ResultsAggregator();
+        final EvaluatedChromosome[] result = algorithm.run(configuration, game, aggregator);
+
+        printResults(result, aggregator, "unavoidableDeaths_1gen");
+
+        saveChromosomesToTxt(result, "unavoidableDeaths_1gen");
+        saveAllChromosomesInGameplayToSvg(game, aggregator, "unavoidableDeaths_1gen");
+
+        assertNotEquals(0, aggregator.getBestScore());
+    }
+
+    private void saveChromosomesToTxt(EvaluatedChromosome[] result, String filename) {
+        for (int chromosomeId = 0; chromosomeId < result.length; chromosomeId++) {
+            try {
+                String moves = Arrays.stream(result[chromosomeId].chromosome().getMoves())
+                        .map(p -> p.x() +" "+p.y())
+                        .collect(Collectors.joining("\n"));
+                Files.writeString(Paths.get(filename+"_chromo_"+chromosomeId+".txt"), moves);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void saveAllChromosomesInGameplayToSvg(GameState initialState, ResultsAggregator aggregator, String filename) {
+        List<GameplayRecorder[]> generationGameplays = aggregator.getGenerationGameplays();
+        for (int generation = 0; generation < generationGameplays.size(); generation++) {
+            GameplayRecorder[] gameplays = generationGameplays.get(generation);
+
+            for (int chromosomeId = 0; chromosomeId < gameplays.length; chromosomeId++) {
+                GameplayRecorder gameplay = gameplays[chromosomeId];
+
+                String svg = SvgExporter.exportToSvg(initialState, gameplay, GameEngine.MAX_X, GameEngine.MAX_Y, 800+200, 450+112, aggregator.getBestTrend()[generation]);
+
+                try {
+                    Files.writeString(Paths.get(filename+"_gen_"+generation+"_chromo_"+chromosomeId+".svg"), svg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private void saveGameplayToSvg(GameState initialState, ResultsAggregator aggregator, String filename) {
         List<GameplayRecorder[]> generationGameplays = aggregator.getGenerationGameplays();
         int[] bestIds = aggregator.getBestIds();

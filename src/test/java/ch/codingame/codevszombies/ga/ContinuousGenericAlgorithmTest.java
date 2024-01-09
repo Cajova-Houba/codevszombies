@@ -159,17 +159,6 @@ class ContinuousGenericAlgorithmTest {
     }
 
     private void printResults(EvaluatedChromosome[] result, ResultsAggregator aggregator, String filename) {
-        int maxScore = 0;
-        //for (int i = 0; i < result.length; i++) {
-        //    System.out.println("Chromosome " + i + ": ");
-        //    for (int j = 0; j < result[i].chromosome().getMoves().length; j++) {
-        //        System.out.println("Gene " + j + ": " + result[i].chromosome().getMoves()[j]);
-        //    }
-        //    if (result[i].score() > maxScore) {
-        //        maxScore = result[i].score();
-        //    }
-        //    System.out.println("Score: " + result[i].score());
-        //}
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.append("max;").append(aggregator.getBestScore()).append("\n");
         csvBuilder.append("best trend;").append(Arrays.stream(aggregator.getBestTrend())

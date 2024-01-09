@@ -11,6 +11,10 @@ public record Position(int x, int y) {
     }
 
     public Position moveTo(Position target, int units) {
+        if (target.equals(this)) {
+            return this;
+        }
+
         Position direction = new Position(target.x - x, target.y - y);
         double length = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
         double dx = direction.x / length;

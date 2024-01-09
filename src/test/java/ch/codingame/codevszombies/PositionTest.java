@@ -7,6 +7,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class PositionTest {
 
     @Test
+    void moveTo_stationary() {
+        final Position position = new Position(10, 10);
+        final Position newPosition = position.moveTo(position, 100);
+
+        assertEquals(10, newPosition.x());
+        assertEquals(10, newPosition.y());
+    }
+
+    @Test
     void moveTo() {
         final Position position = new Position(8250,8999);
         final Position target = new Position(8250,4500);

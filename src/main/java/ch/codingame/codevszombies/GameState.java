@@ -95,7 +95,12 @@ public class GameState {
      * @param ashSpeed How many units to move.
      */
     public void moveAsh(Position direction, int ashSpeed) {
-        ash = ash.moveTo(direction, ashSpeed);
+        // ...or onto the target coordinates if he is less than 1000 units away.
+        if (ash.squareDistanceFrom(direction) <= (ashSpeed*ashSpeed)){
+            ash = direction;
+        } else {
+            ash = ash.moveTo(direction, ashSpeed);
+        }
         System.err.println("Ash moved to: " + ash);
     }
 

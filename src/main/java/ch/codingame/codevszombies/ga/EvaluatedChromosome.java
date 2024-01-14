@@ -19,7 +19,7 @@ public record EvaluatedChromosome(ChromosomeSolution chromosome, int score) {
      * @param matingCoefficient Must be between 0 and 1. Used when mating two genes.
      * @return Two child chromosomes.
      */
-    public ChromosomeSolution[] mateWith(EvaluatedChromosome other, float matingCoefficient) {
+    public ChromosomeSolution[]     mateWith(EvaluatedChromosome other, float matingCoefficient) {
         Position[] genes1 = new Position[chromosome.getMoves().length];
         Position[] genes2 = new Position[chromosome.getMoves().length];
         for (int i = 0; i < chromosome.getMoves().length; i++) {

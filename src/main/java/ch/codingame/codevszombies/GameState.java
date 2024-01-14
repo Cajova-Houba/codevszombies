@@ -25,6 +25,9 @@ public class GameState {
      */
     private Set<Integer> zombiesPlayed = new HashSet<>();
 
+    // game over when set to true
+    private boolean noMoreMoves = false;
+
     public GameState(List<Position> zombies, Position ash, List<Position> humans) {
         this.zombies = zombies;
         this.ash = ash;
@@ -168,7 +171,7 @@ public class GameState {
      * @return True if there are no humans left.
      */
     public boolean isGameOver() {
-        return humans.isEmpty() || !anyZombiesLeft();
+        return humans.isEmpty() || !anyZombiesLeft() || noMoreMoves;
     }
 
     boolean anyZombiesLeft() {
@@ -215,5 +218,14 @@ public class GameState {
 
     public Position getAsh() {
         return ash;
+    }
+
+    public void nullScore() {
+        score = 0;
+    }
+
+    public void noMoreMoves() {
+        score = 0;
+        noMoreMoves = true;
     }
 }

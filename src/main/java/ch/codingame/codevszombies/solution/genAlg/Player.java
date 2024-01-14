@@ -109,7 +109,13 @@ class Player {
         public int playGame(List<Position> solution) {
             int turnCounter = 0;
 
-            while (!isGameOver() && turnCounter < solution.size()) {
+            while (!isGameOver()) {
+                if (turnCounter >= solution.size()) {
+                    // no more turns, game over
+                    score = 0;
+                    break;
+                }
+
                 playTurn(solution.get(turnCounter));
 
                 turnCounter++;

@@ -98,6 +98,12 @@ public class GameEngine {
     }
 
     void playTurn(GameState gameState, ISolution solution) {
+        if (!solution.hasNextMove()) {
+            System.err.println("No more moves, game over");
+            gameState.noMoreMoves();
+            return;
+        }
+
         // todo: pass game state to solution, so that it's able to calculate the next move
         // get player's input
         Position playersInput = parsePosition(solution.getNextMove());
@@ -116,6 +122,9 @@ public class GameEngine {
     }
 
     private Position parsePosition(String move) {
+        if (move == null) {
+            return null;
+        }
         String[] parts = move.split(" ");
         return new Position(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
     }
